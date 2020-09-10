@@ -1,0 +1,70 @@
+name: Build Docker Image
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  Test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-go@v2
+        with:
+          go-version: ^1.14
+        id: go
+
+      - uses: actions/checkout@v2
+
+      - name: Get dependencies
+        run: |
+          go env -w GO111MODULE=on
+          go get
+
+      - name: Test
+        run: make test
+
+  Build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-go@v2
+        with:
+          go-version: ^1.14
+        id: go
+
+      - uses: actions/checkout@v2
+
+      - name: Get dependencies
+        run: |
+          go env -w GO111MODULE=on
+          go get
+
+      - name: Build
+        run: make build
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2.1.4
+        with:
+          path: ./lost-found-service
+
+  Docker:
+    runs-on: ubuntu-latest
+    needs: Build
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: artifact
+
+      - run: |
+          chmod a+x lost-found-service
+          docker build -t xmumy/lost-found:${GITHUB_RUN_NUMBER} .
+
+      - name: Publish
+        env:
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        run: |
+          echo $DOCKER_PASSWORD | docker login -u ctrysbita --password-stdin
+          docker push xmumy/lost-found:${GITHUB_RUN_NUMBER}
