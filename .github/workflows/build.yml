@@ -58,7 +58,8 @@ jobs:
         with:
           name: artifact
 
-      - run: |
+      - name: Build docker image
+        run: |
           chmod a+x lost-found-service
           docker build -t xmumy/lost-found:${GITHUB_RUN_NUMBER} .
 

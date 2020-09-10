@@ -2,6 +2,7 @@ syntax = "proto3";
 
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
+import "validate/validate.proto";
 
 package xmux.lost_found.v4;
 
@@ -40,7 +41,7 @@ message LostAndFoundBrief {
 }
 
 message GetDetailReq {
-    string id = 1;
+    string id = 1 [(validate.rules).string = {max_len: 25}];
 }
 
 message LostAndFoundDetail {
@@ -56,12 +57,12 @@ message LostAndFoundDetail {
 
 message AddItemReq {
     LostAndFoundType type = 1;
-    string name = 2;
-    google.protobuf.Timestamp time = 3;
-    string location = 4;
-    string description = 5;
-    map<string, string> contacts = 6;
-    repeated string pictures = 7;
+    string name = 2 [(validate.rules).string = {max_len: 50}];
+    google.protobuf.Timestamp time = 3 [(validate.rules).timestamp.required = true];
+    string location = 4 [(validate.rules).string = {max_len: 100}];
+    string description = 5 [(validate.rules).string = {max_len: 500}];
+    map<string, string> contacts = 6 [(validate.rules).map.keys.string.max_len = 50, (validate.rules).map.values.string.max_len = 100, (validate.rules).map.max_pairs = 10];
+    // repeated string pictures = 7;
 }
 
 message DeleteItemReq {

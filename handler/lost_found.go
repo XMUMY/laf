@@ -10,6 +10,7 @@ import (
 	"github.com/XMUMY/lost_found/proto/lost_found"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/empty"
+	"github.com/micro/go-micro/v2/errors"
 )
 
 type LostAndFound struct {
@@ -75,6 +76,11 @@ func (s *LostAndFound) AddItem(ctx context.Context, req *lostfound.AddItemReq, _
 		return err
 	}
 
+	err = req.Validate()
+	if err != nil {
+		return errors.BadRequest(lostfound.SvcID, err.(lostfound.AddItemReqValidationError).Reason())
+	}
+
 	tm, _ := ptypes.Timestamp(req.Time)
 	item := &model.LostAndFoundDetail{
 		LostAndFoundBrief: model.LostAndFoundBrief{
@@ -86,7 +92,6 @@ func (s *LostAndFound) AddItem(ctx context.Context, req *lostfound.AddItemReq, _
 		},
 		Description: req.Description,
 		Contacts:    req.Contacts,
-		Pictures:    req.Pictures,
 	}
 
 	_, err = s.dao.InsertItem(ctx, item)
@@ -97,6 +102,11 @@ func (s *LostAndFound) DeleteItem(ctx context.Context, req *lostfound.DeleteItem
 	authed, _, err := auth.AuthenticateWithCampusIdPassword(ctx)
 	if err != nil {
 		return err
+	}
+
+	err = req.Validate()
+	if err != nil {
+		return errors.BadRequest(lostfound.SvcID, err.(lostfound.DeleteItemReqValidationError).Reason())
 	}
 
 	err = s.dao.DeleteItemWithUID(ctx, req.Id, authed.Uid)

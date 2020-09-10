@@ -5,7 +5,12 @@ MODIFY=Mproto/imports/api.proto=github.com/micro/go-micro/v2/api/proto
 .PHONY: proto
 proto:
     
-	protoc --proto_path=. --micro_out=${MODIFY}:. --go_out=${MODIFY}:. proto/lost_found/lost_found.proto
+	protoc -I ${GOPATH}/pkg/mod/github.com/envoyproxy/protoc-gen-validate@v0.4.1 \
+	       --proto_path=. \
+	       --micro_out=${MODIFY}:. \
+	       --go_out=${MODIFY}:. \
+	       --validate_out=lang=go:. \
+	       proto/lost_found/lost_found.proto
 
 .PHONY: build
 build:
