@@ -1,6 +1,6 @@
-# Lost & Found Service
+# XMUS Lost & Found
 
-Service for Lost & Found.
+Lost & Found service for XMUX.
 
 ## Environment Variables
 

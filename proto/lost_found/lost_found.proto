@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+package xmux.lost_found.v4;
+
+option go_package = "lostfound";
+
+service LostAndFound {
+    rpc GetBriefs (GetBriefsReq) returns (GetBriefsResp);
+
+    rpc GetDetail (GetDetailReq) returns (LostAndFoundDetail);
+
+    rpc AddItem (AddItemReq) returns (.google.protobuf.Empty);
+
+    rpc DeleteItem (DeleteItemReq) returns (.google.protobuf.Empty);
+}
+
+enum LostAndFoundType {
+    Lost = 0;
+    Found = 1;
+}
+
+message GetBriefsReq {
+    google.protobuf.Timestamp before = 1;
+}
+
+message GetBriefsResp {
+    repeated LostAndFoundBrief briefs = 1;
+}
+
+message LostAndFoundBrief {
+    string id = 1;
+    string uid = 2;
+    LostAndFoundType type = 3;
+    string name = 4;
+    google.protobuf.Timestamp time = 5;
+    string location = 6;
+}
+
+message GetDetailReq {
+    string id = 1;
+}
+
+message LostAndFoundDetail {
+    string uid = 1;
+    LostAndFoundType type = 2;
+    string name = 3;
+    google.protobuf.Timestamp time = 4;
+    string location = 5;
+    string description = 6;
+    map<string, string> contacts = 7;
+    repeated string pictures = 8;
+}
+
+message AddItemReq {
+    LostAndFoundType type = 1;
+    string name = 2;
+    google.protobuf.Timestamp time = 3;
+    string location = 4;
+    string description = 5;
+    map<string, string> contacts = 6;
+    repeated string pictures = 7;
+}
+
+message DeleteItemReq {
+    string id = 1;
+}
