@@ -25,7 +25,7 @@ func New() *LostAndFound {
 
 func (s *LostAndFound) GetBriefs(ctx context.Context, req *lostfound.GetBriefsReq, resp *lostfound.GetBriefsResp) error {
 	var date time.Time
-	if req.Before.Seconds == 0 {
+	if req.Before == nil {
 		date = time.Now()
 	} else {
 		date, _ = ptypes.Timestamp(req.Before)

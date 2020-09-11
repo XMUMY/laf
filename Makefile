@@ -15,11 +15,11 @@ proto:
 .PHONY: build
 build:
 
-	go build -o lost-found-service *.go
+	GO111MODULE=on CGO_ENABLED=0 go build -o lost-found-service *.go
 
 .PHONY: test
 test:
-	go test -v ./... -cover
+	GO111MODULE=on go test -v ./... -cover
 
 .PHONY: docker
 docker:
