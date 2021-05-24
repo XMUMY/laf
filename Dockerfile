@@ -2,7 +2,7 @@ FROM alpine
 
 RUN apk add --no-cache ca-certificates
 
-ADD bin/server /bin/server
+ADD server /bin/server
 ADD configs /configs/
 
 EXPOSE 8000

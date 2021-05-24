@@ -41,7 +41,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v2.1.4
         with:
-          path: ./lost-found-service
+          path: ./bin/server
 
   Docker:
     runs-on: ubuntu-latest
@@ -56,7 +56,7 @@ jobs:
 
       - name: Build docker image
         run: |
-          chmod a+x lost-found-service
+          chmod a+x server
           docker build -t xmumy/lost-found:${GITHUB_RUN_NUMBER} .
 
       - name: Publish
