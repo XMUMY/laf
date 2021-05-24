@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package xmux.lost_found.v1;
+
+option go_package = "github.com/XMUMY/lost_found/api/lost_found/v4;v4";
+
+enum ErrorReason {
+  ITEM_NOT_FOUND = 0;
+  INVALID_ITEM_ID = 1;
+}

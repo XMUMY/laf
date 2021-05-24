@@ -1,28 +1,28 @@
-package model
+package biz
 
 import (
 	"time"
 
-	"github.com/XMUMY/lost_found/proto/lost_found"
+	pb "github.com/XMUMY/lost_found/api/lost_found/v4"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-type LostAndFoundBrief struct {
+type ItemBrief struct {
 	Uid       string
-	Type      lostfound.LostAndFoundType
+	Type      pb.LostAndFoundType
 	Name      string
 	Timestamp time.Time
 	Location  string
 }
 
-type LostAndFoundDetail struct {
-	LostAndFoundBrief `bson:",inline"`
+type ItemDetail struct {
+	ItemBrief `bson:",inline"`
 	Description       string
 	Contacts          map[string]string
 	Pictures          []string
 }
 
-type LostAndFoundItem struct {
+type Item struct {
 	Id                 primitive.ObjectID `bson:"_id"`
-	LostAndFoundDetail `bson:",inline"`
+	ItemDetail `bson:",inline"`
 }

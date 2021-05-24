@@ -1,3 +1,3 @@
-package main
+package lost_found
 
-//go:generate make proto
+//go:generate kratos proto client .
