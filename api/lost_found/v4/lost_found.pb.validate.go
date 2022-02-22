@@ -11,6 +11,7 @@ import (
 	"net/mail"
 	"net/url"
 	"regexp"
+	"sort"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -31,17 +32,51 @@ var (
 	_ = (*url.URL)(nil)
 	_ = (*mail.Address)(nil)
 	_ = anypb.Any{}
+	_ = sort.Sort
 )
 
 // Validate checks the field values on GetBriefsReq with the rules defined in
-// the proto definition for this message. If any rules are violated, an error
-// is returned.
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *GetBriefsReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetBriefsReq with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in GetBriefsReqMultiError, or
+// nil if none found.
+func (m *GetBriefsReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetBriefsReq) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
-	if v, ok := interface{}(m.GetBefore()).(interface{ Validate() error }); ok {
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetBefore()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, GetBriefsReqValidationError{
+					field:  "Before",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, GetBriefsReqValidationError{
+					field:  "Before",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetBefore()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return GetBriefsReqValidationError{
 				field:  "Before",
@@ -51,8 +86,28 @@ func (m *GetBriefsReq) Validate() error {
 		}
 	}
 
+	if len(errors) > 0 {
+		return GetBriefsReqMultiError(errors)
+	}
+
 	return nil
 }
+
+// GetBriefsReqMultiError is an error wrapping multiple validation errors
+// returned by GetBriefsReq.ValidateAll() if the designated constraints aren't met.
+type GetBriefsReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetBriefsReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetBriefsReqMultiError) AllErrors() []error { return m }
 
 // GetBriefsReqValidationError is the validation error returned by
 // GetBriefsReq.Validate if the designated constraints aren't met.
@@ -109,17 +164,50 @@ var _ interface {
 } = GetBriefsReqValidationError{}
 
 // Validate checks the field values on GetBriefsResp with the rules defined in
-// the proto definition for this message. If any rules are violated, an error
-// is returned.
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *GetBriefsResp) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetBriefsResp with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in GetBriefsRespMultiError, or
+// nil if none found.
+func (m *GetBriefsResp) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetBriefsResp) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
+	var errors []error
+
 	for idx, item := range m.GetBriefs() {
 		_, _ = idx, item
 
-		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, GetBriefsRespValidationError{
+						field:  fmt.Sprintf("Briefs[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, GetBriefsRespValidationError{
+						field:  fmt.Sprintf("Briefs[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return GetBriefsRespValidationError{
 					field:  fmt.Sprintf("Briefs[%v]", idx),
@@ -131,8 +219,29 @@ func (m *GetBriefsResp) Validate() error {
 
 	}
 
+	if len(errors) > 0 {
+		return GetBriefsRespMultiError(errors)
+	}
+
 	return nil
 }
+
+// GetBriefsRespMultiError is an error wrapping multiple validation errors
+// returned by GetBriefsResp.ValidateAll() if the designated constraints
+// aren't met.
+type GetBriefsRespMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetBriefsRespMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetBriefsRespMultiError) AllErrors() []error { return m }
 
 // GetBriefsRespValidationError is the validation error returned by
 // GetBriefsResp.Validate if the designated constraints aren't met.
@@ -189,12 +298,26 @@ var _ interface {
 } = GetBriefsRespValidationError{}
 
 // Validate checks the field values on LostAndFoundBrief with the rules defined
-// in the proto definition for this message. If any rules are violated, an
-// error is returned.
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
 func (m *LostAndFoundBrief) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on LostAndFoundBrief with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// LostAndFoundBriefMultiError, or nil if none found.
+func (m *LostAndFoundBrief) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *LostAndFoundBrief) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
+
+	var errors []error
 
 	// no validation rules for Id
 
@@ -204,7 +327,26 @@ func (m *LostAndFoundBrief) Validate() error {
 
 	// no validation rules for Name
 
-	if v, ok := interface{}(m.GetTime()).(interface{ Validate() error }); ok {
+	if all {
+		switch v := interface{}(m.GetTime()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, LostAndFoundBriefValidationError{
+					field:  "Time",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, LostAndFoundBriefValidationError{
+					field:  "Time",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetTime()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return LostAndFoundBriefValidationError{
 				field:  "Time",
@@ -216,8 +358,29 @@ func (m *LostAndFoundBrief) Validate() error {
 
 	// no validation rules for Location
 
+	if len(errors) > 0 {
+		return LostAndFoundBriefMultiError(errors)
+	}
+
 	return nil
 }
+
+// LostAndFoundBriefMultiError is an error wrapping multiple validation errors
+// returned by LostAndFoundBrief.ValidateAll() if the designated constraints
+// aren't met.
+type LostAndFoundBriefMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m LostAndFoundBriefMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m LostAndFoundBriefMultiError) AllErrors() []error { return m }
 
 // LostAndFoundBriefValidationError is the validation error returned by
 // LostAndFoundBrief.Validate if the designated constraints aren't met.
@@ -276,23 +439,61 @@ var _ interface {
 } = LostAndFoundBriefValidationError{}
 
 // Validate checks the field values on GetDetailReq with the rules defined in
-// the proto definition for this message. If any rules are violated, an error
-// is returned.
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *GetDetailReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetDetailReq with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in GetDetailReqMultiError, or
+// nil if none found.
+func (m *GetDetailReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetDetailReq) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
+	var errors []error
+
 	if utf8.RuneCountInString(m.GetId()) != 24 {
-		return GetDetailReqValidationError{
+		err := GetDetailReqValidationError{
 			field:  "Id",
 			reason: "value length must be 24 runes",
 		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
 
+	}
+
+	if len(errors) > 0 {
+		return GetDetailReqMultiError(errors)
 	}
 
 	return nil
 }
+
+// GetDetailReqMultiError is an error wrapping multiple validation errors
+// returned by GetDetailReq.ValidateAll() if the designated constraints aren't met.
+type GetDetailReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetDetailReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetDetailReqMultiError) AllErrors() []error { return m }
 
 // GetDetailReqValidationError is the validation error returned by
 // GetDetailReq.Validate if the designated constraints aren't met.
@@ -350,11 +551,25 @@ var _ interface {
 
 // Validate checks the field values on LostAndFoundDetail with the rules
 // defined in the proto definition for this message. If any rules are
-// violated, an error is returned.
+// violated, the first error encountered is returned, or nil if there are no violations.
 func (m *LostAndFoundDetail) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on LostAndFoundDetail with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// LostAndFoundDetailMultiError, or nil if none found.
+func (m *LostAndFoundDetail) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *LostAndFoundDetail) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
+
+	var errors []error
 
 	// no validation rules for Uid
 
@@ -362,7 +577,26 @@ func (m *LostAndFoundDetail) Validate() error {
 
 	// no validation rules for Name
 
-	if v, ok := interface{}(m.GetTime()).(interface{ Validate() error }); ok {
+	if all {
+		switch v := interface{}(m.GetTime()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, LostAndFoundDetailValidationError{
+					field:  "Time",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, LostAndFoundDetailValidationError{
+					field:  "Time",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetTime()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return LostAndFoundDetailValidationError{
 				field:  "Time",
@@ -378,8 +612,29 @@ func (m *LostAndFoundDetail) Validate() error {
 
 	// no validation rules for Contacts
 
+	if len(errors) > 0 {
+		return LostAndFoundDetailMultiError(errors)
+	}
+
 	return nil
 }
+
+// LostAndFoundDetailMultiError is an error wrapping multiple validation errors
+// returned by LostAndFoundDetail.ValidateAll() if the designated constraints
+// aren't met.
+type LostAndFoundDetailMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m LostAndFoundDetailMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m LostAndFoundDetailMultiError) AllErrors() []error { return m }
 
 // LostAndFoundDetailValidationError is the validation error returned by
 // LostAndFoundDetail.Validate if the designated constraints aren't met.
@@ -438,70 +693,143 @@ var _ interface {
 } = LostAndFoundDetailValidationError{}
 
 // Validate checks the field values on AddItemReq with the rules defined in the
-// proto definition for this message. If any rules are violated, an error is returned.
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *AddItemReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AddItemReq with the rules defined in
+// the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in AddItemReqMultiError, or
+// nil if none found.
+func (m *AddItemReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AddItemReq) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
+	var errors []error
+
 	// no validation rules for Type
 
 	if utf8.RuneCountInString(m.GetName()) > 50 {
-		return AddItemReqValidationError{
+		err := AddItemReqValidationError{
 			field:  "Name",
 			reason: "value length must be at most 50 runes",
 		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
 	}
 
 	if m.GetTime() == nil {
-		return AddItemReqValidationError{
+		err := AddItemReqValidationError{
 			field:  "Time",
 			reason: "value is required",
 		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
 	}
 
 	if utf8.RuneCountInString(m.GetLocation()) > 100 {
-		return AddItemReqValidationError{
+		err := AddItemReqValidationError{
 			field:  "Location",
 			reason: "value length must be at most 100 runes",
 		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
 	}
 
 	if utf8.RuneCountInString(m.GetDescription()) > 500 {
-		return AddItemReqValidationError{
+		err := AddItemReqValidationError{
 			field:  "Description",
 			reason: "value length must be at most 500 runes",
 		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
 	}
 
 	if len(m.GetContacts()) > 10 {
-		return AddItemReqValidationError{
+		err := AddItemReqValidationError{
 			field:  "Contacts",
 			reason: "value must contain no more than 10 pair(s)",
 		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
 	}
 
-	for key, val := range m.GetContacts() {
-		_ = val
-
-		if utf8.RuneCountInString(key) > 50 {
-			return AddItemReqValidationError{
-				field:  fmt.Sprintf("Contacts[%v]", key),
-				reason: "value length must be at most 50 runes",
-			}
+	{
+		sorted_keys := make([]string, len(m.GetContacts()))
+		i := 0
+		for key := range m.GetContacts() {
+			sorted_keys[i] = key
+			i++
 		}
+		sort.Slice(sorted_keys, func(i, j int) bool { return sorted_keys[i] < sorted_keys[j] })
+		for _, key := range sorted_keys {
+			val := m.GetContacts()[key]
+			_ = val
 
-		if utf8.RuneCountInString(val) > 100 {
-			return AddItemReqValidationError{
-				field:  fmt.Sprintf("Contacts[%v]", key),
-				reason: "value length must be at most 100 runes",
+			if utf8.RuneCountInString(key) > 50 {
+				err := AddItemReqValidationError{
+					field:  fmt.Sprintf("Contacts[%v]", key),
+					reason: "value length must be at most 50 runes",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
 			}
-		}
 
+			if utf8.RuneCountInString(val) > 100 {
+				err := AddItemReqValidationError{
+					field:  fmt.Sprintf("Contacts[%v]", key),
+					reason: "value length must be at most 100 runes",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
+		}
+	}
+
+	if len(errors) > 0 {
+		return AddItemReqMultiError(errors)
 	}
 
 	return nil
 }
+
+// AddItemReqMultiError is an error wrapping multiple validation errors
+// returned by AddItemReq.ValidateAll() if the designated constraints aren't met.
+type AddItemReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AddItemReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AddItemReqMultiError) AllErrors() []error { return m }
 
 // AddItemReqValidationError is the validation error returned by
 // AddItemReq.Validate if the designated constraints aren't met.
@@ -558,17 +886,52 @@ var _ interface {
 } = AddItemReqValidationError{}
 
 // Validate checks the field values on DeleteItemReq with the rules defined in
-// the proto definition for this message. If any rules are violated, an error
-// is returned.
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *DeleteItemReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on DeleteItemReq with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in DeleteItemReqMultiError, or
+// nil if none found.
+func (m *DeleteItemReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *DeleteItemReq) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
+	var errors []error
+
 	// no validation rules for Id
+
+	if len(errors) > 0 {
+		return DeleteItemReqMultiError(errors)
+	}
 
 	return nil
 }
+
+// DeleteItemReqMultiError is an error wrapping multiple validation errors
+// returned by DeleteItemReq.ValidateAll() if the designated constraints
+// aren't met.
+type DeleteItemReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m DeleteItemReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m DeleteItemReqMultiError) AllErrors() []error { return m }
 
 // DeleteItemReqValidationError is the validation error returned by
 // DeleteItemReq.Validate if the designated constraints aren't met.

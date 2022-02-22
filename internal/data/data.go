@@ -22,7 +22,7 @@ type Data struct {
 }
 
 // NewData .
-func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
+func NewData(c *conf.Data, logger log.Logger) (data *Data, cleanup func(), err error) {
 	mongoOptions := options.Client().ApplyURI(os.Getenv("DB_ADDR"))
 	mongoOptions.Auth = &options.Credential{
 		AuthSource: os.Getenv("DB_NAME"),
@@ -34,15 +34,16 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 	ctx, _ := context.WithTimeout(context.TODO(), 5*time.Second)
 	client, err := mongo.Connect(ctx, mongoOptions)
 	if err != nil {
-		panic(err)
+		return
 	}
 
-	cleanup := func() {
-		logger.Log("msg", "closing the data resources")
+	cleanup = func() {
+		log.NewHelper(logger).Info("closing the data resources")
 		client.Disconnect(context.TODO())
 	}
-	return &Data{
+	data = &Data{
 		client: client,
 		db:     client.Database(os.Getenv("DB_NAME")),
-	}, cleanup, nil
+	}
+	return
 }

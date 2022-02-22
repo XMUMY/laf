@@ -2,9 +2,13 @@ syntax = "proto3";
 
 package xmux.lost_found.v1;
 
+import "errors/errors.proto";
+
 option go_package = "github.com/XMUMY/lost_found/api/lost_found/v4;v4";
 
 enum ErrorReason {
-  ITEM_NOT_FOUND = 0;
-  INVALID_ITEM_ID = 1;
+  option (errors.default_code) = 500;
+
+  ITEM_NOT_FOUND = 0 [(errors.code) = 404];
+  INVALID_ITEM_ID = 1 [(errors.code) = 400];
 }

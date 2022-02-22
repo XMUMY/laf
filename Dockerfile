@@ -2,10 +2,10 @@ FROM alpine
 
 RUN apk add --no-cache ca-certificates
 
-ADD server /bin/server
+ADD lost_found /bin/lost_found
 ADD configs /configs/
 
 EXPOSE 8000
 EXPOSE 9000
 
-ENTRYPOINT [ "/bin/server", "-conf", "/configs/config.yaml"]
+ENTRYPOINT [ "/bin/lost_found", "-conf", "/configs/config.yaml"]

@@ -1,14 +1,12 @@
 package server
 
 import (
+	"github.com/XMUMY/lib/middleware/errors"
 	v4 "github.com/XMUMY/lost_found/api/lost_found/v4"
 	"github.com/XMUMY/lost_found/internal/conf"
 	"github.com/XMUMY/lost_found/internal/service"
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/go-kratos/kratos/v2/middleware"
-	"github.com/go-kratos/kratos/v2/middleware/logging"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
-	"github.com/go-kratos/kratos/v2/middleware/tracing"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 )
 
@@ -16,11 +14,8 @@ import (
 func NewGRPCServer(c *conf.Server, svc *service.LostAndFoundService, logger log.Logger) *grpc.Server {
 	var opts = []grpc.ServerOption{
 		grpc.Middleware(
-			middleware.Chain(
-				recovery.Recovery(),
-				tracing.Server(),
-				logging.Server(logger),
-			),
+			recovery.Recovery(),
+			errors.PreventEscaping(logger),
 		),
 	}
 	if c.Grpc.Network != "" {

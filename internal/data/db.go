@@ -22,7 +22,7 @@ type itemRepo struct {
 func NewItemRepo(data *Data, logger log.Logger) biz.ItemRepo {
 	return &itemRepo{
 		data:   data,
-		logger: log.NewHelper("data/item", logger),
+		logger: log.NewHelper(logger),
 	}
 }
 
@@ -92,8 +92,8 @@ end:
 	return
 }
 
-// DeleteItemWithUID remove item with specified ID and UID.
-func (r *itemRepo) DeleteItemWithUID(ctx context.Context, id string, uid string) error {
+// DeleteItemForUser remove item with specified ID and UID.
+func (r *itemRepo) DeleteItemForUser(ctx context.Context, id string, uid string) error {
 	col := r.data.db.Collection("items")
 
 	objID, err := primitive.ObjectIDFromHex(id)
