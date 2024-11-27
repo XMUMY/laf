@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package xmux.lost_found.v1;
+package xmux.lost_found.v4;
 
 import "errors/errors.proto";
 

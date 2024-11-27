@@ -4,13 +4,13 @@ go 1.23
 
 require (
 	github.com/XMUMY/api/core/auth/v4 v4.0.0-20240512102332-1af8a8b76090
-	github.com/XMUMY/lib v0.0.0-20220215154413-8919a23707d3
 	github.com/envoyproxy/protoc-gen-validate v1.1.0
 	github.com/go-kratos/kratos/v2 v2.8.2
 	github.com/golang/protobuf v1.5.4
 	github.com/google/wire v0.6.0
 	github.com/pkg/errors v0.9.1
 	go.mongodb.org/mongo-driver v1.17.1
+	go.uber.org/automaxprocs v1.6.0
 	google.golang.org/grpc v1.68.0
 	google.golang.org/protobuf v1.35.2
 )

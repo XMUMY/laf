@@ -4,7 +4,6 @@ import (
 	"flag"
 	"os"
 
-	"github.com/XMUMY/lost_found/internal/conf"
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/config"
 	"github.com/go-kratos/kratos/v2/config/file"
@@ -12,6 +11,9 @@ import (
 	"github.com/go-kratos/kratos/v2/middleware/tracing"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"github.com/go-kratos/kratos/v2/transport/http"
+	_ "go.uber.org/automaxprocs"
+
+	"github.com/XMUMY/lost_found/internal/conf"
 )
 
 // go build -ldflags "-X main.Version=x.y.z"
@@ -30,7 +32,7 @@ func init() {
 	flag.StringVar(&flagconf, "conf", "../../configs", "config path, eg: -conf config.yaml")
 }
 
-func newApp(logger log.Logger, hs *http.Server, gs *grpc.Server) *kratos.App {
+func newApp(logger log.Logger, gs *grpc.Server, hs *http.Server) *kratos.App {
 	return kratos.New(
 		kratos.ID(id),
 		kratos.Name(Name),
@@ -38,8 +40,8 @@ func newApp(logger log.Logger, hs *http.Server, gs *grpc.Server) *kratos.App {
 		kratos.Metadata(map[string]string{}),
 		kratos.Logger(logger),
 		kratos.Server(
-			hs,
 			gs,
+			hs,
 		),
 	)
 }
@@ -52,8 +54,8 @@ func main() {
 		"service.id", id,
 		"service.name", Name,
 		"service.version", Version,
-		"trace_id", tracing.TraceID(),
-		"span_id", tracing.SpanID(),
+		"trace.id", tracing.TraceID(),
+		"span.id", tracing.SpanID(),
 	)
 	c := config.New(
 		config.WithSource(
@@ -71,7 +73,7 @@ func main() {
 		panic(err)
 	}
 
-	app, cleanup, err := initApp(bc.Server, bc.Data, logger)
+	app, cleanup, err := wireApp(bc.Server, bc.Data, logger)
 	if err != nil {
 		panic(err)
 	}

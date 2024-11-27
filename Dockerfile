@@ -2,7 +2,7 @@ FROM alpine
 
 RUN apk add --no-cache ca-certificates
 
-ADD lost_found /bin/lost_found
+ADD bin/lost_found /bin/lost_found
 ADD configs /configs/
 
 EXPOSE 8000

@@ -2,26 +2,39 @@ package service
 
 import (
 	"context"
+	"os"
 	"time"
 
 	auth "github.com/XMUMY/api/core/auth/v4"
-	v4 "github.com/XMUMY/lost_found/api/lost_found/v4"
-	"github.com/XMUMY/lost_found/internal/biz"
+	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"github.com/golang/protobuf/ptypes/empty"
 	"google.golang.org/protobuf/types/known/timestamppb"
+
+	v4 "github.com/XMUMY/lost_found/api/lost_found/v4"
+	"github.com/XMUMY/lost_found/internal/biz"
 )
 
 type LostAndFoundService struct {
 	v4.UnimplementedLostAndFoundServer
-	authClient  *auth.Client
+	authClient  auth.Client
 	itemUseCase *biz.ItemUseCase
 }
 
-func NewLostAndFoundService(authClient *auth.Client, itemUseCase *biz.ItemUseCase) *LostAndFoundService {
-	return &LostAndFoundService{
-		authClient:  authClient,
+func NewLostAndFoundService(itemUseCase *biz.ItemUseCase) (svc *LostAndFoundService, err error) {
+	authConn, err := grpc.DialInsecure(
+		context.Background(),
+		grpc.WithEndpoint(os.Getenv("AUTH_ENDPOINT")),
+		grpc.WithTimeout(3*time.Second),
+	)
+	if err != nil {
+		return
+	}
+
+	svc = &LostAndFoundService{
+		authClient:  auth.NewClient(authConn),
 		itemUseCase: itemUseCase,
 	}
+	return
 }
 
 func (s *LostAndFoundService) GetBriefs(ctx context.Context, req *v4.GetBriefsReq) (resp *v4.GetBriefsResp, err error) {
